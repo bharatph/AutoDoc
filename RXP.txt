@@ -1,0 +1,48 @@
+#RegenX Protocol (RXP)
+RegenX is the main communication line between the RegenX and RegenXd
+
+##Few characteristics of the RegenX Protocol
+Non-Authenticative
+Memorable
+
+##Communication Staging
+The following algorithm is used for sending and retreiving the information to and from the server
+
+The client can ask the following requests
++---------+---------------------------------------+
+|  CODE   |              DESCRIPTION              |
++---------+---------------------------------------+
+| CON_REQ | Requesting for connection             |
+| BIN_SEN | Sending a binary file                 |
+| TXT_SEN | Sending a text file                   |
+| SEN_CMD | Request for available commands        |
+| DIAG_ST | Start diagnosis with provided data    |
+| DIAG_CA | cancel the current diagnosis          |
+| SET_BUF | sets the buffer to the given value    |
+| GET_BUF | gets the buffer value from the server |
++---------+---------------------------------------+
+
+Server replies with the following
++---------+--------------------------------------------+
+|  CODE   |                DESCRIPTION                 |
++---------+--------------------------------------------+
+| REQ_ACK | The request for connection is acknowledged |
+| BINA_OK | Binary file is received                    |
+| BINA_ER | Binary file is not received                |
+| TEXT_OK | Text file is received                      |
+| TEXT_ER | Text file is not received                  |
+| DIAG_OK | Diagnosis completed successfully           |
+| DIAG_ER | Diagnosis failed                           |
++---------+--------------------------------------------+
+
++------------+-------------------+
+| session-id |     inte_file     |
++------------+-------------------+
+|          0 | x_ray.jpg         |
+|          1 | blood_report.docx |
+|          . | .                 |
+|          . | .                 |
+|          . | .                 |
+|          . | .                 |
++------------+-------------------+
+
