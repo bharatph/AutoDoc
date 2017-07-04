@@ -1,11 +1,11 @@
-#RegenX Protocol (RXP)
-RegenX is the main communication line between the RegenX and RegenXd
+#AutoDoc Protocol (ADP)
+AutoDoc is the main communication line between the AutoDoc and AutoDocd
 
-##Few characteristics of the RegenX Protocol
+##Few characteristics of the AutoDoc Protocol
 Non-Authenticative
-Memorable
+Connection is alive through sessions
 
-##Communication Staging
+##Transport Format
 The following algorithm is used for sending and retreiving the information to and from the server
 
 The client can ask the following requests
@@ -35,6 +35,9 @@ Server replies with the following
 | DIAG_ER | Diagnosis failed                           |
 +---------+--------------------------------------------+
 
+##Sessions
+ADP maintains a session-id to identify a active session. This session-id is used when the connection is interupted when a file is being uploaded to the server. This ensures that the uploaded files are not uploaded again when reconnecting.
+
 +------------+-------------------+
 | session-id |     inte_file     |
 +------------+-------------------+
@@ -46,3 +49,4 @@ Server replies with the following
 |          . | .                 |
 +------------+-------------------+
 
+The session-id is expired only after 12hrs which can be set by the session-expire-time.
