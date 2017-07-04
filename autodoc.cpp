@@ -1,5 +1,5 @@
 #ifndef REGENX
-#define AUTODOC "AutoDOC"
+#define AUTODOC "AutoDoc"
 #include<iostream>
 #include<thread>
 #if defined(__linux__) || defined(__APPLE__)
@@ -132,7 +132,7 @@ void exit_handler(int sig){
 
 int main(int argc, char *argv[]){
     signal(SIGINT, exit_handler);
-	printf("%s", regenx_logo);    if(load_db() < 0){
+	printf("%s", autodoc_logo);    if(load_db() < 0){
 		log_fat(AUTODOC, "Cannot load DB, terminating program");
     }
     //start network thread

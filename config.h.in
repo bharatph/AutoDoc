@@ -1,7 +1,6 @@
 #define autodoc_VERSION_MAJOR @autodoc_VERSION_MAJOR@
 #define autodocd_VERSION_MINOR @autodocd_VERSION_MINOR@
 #define BUFFER_SIZE @BUFFER_SIZE@
-#define regenx_logo "  _____                      __   __\n |  __ \\                     \\ \\ / /\n | |__) |___  __ _  ___ _ __  \\ V / \n |  _  // _ \\/ _` |/ _ \\ '_ \\  > <  \n | | \\ \\  __/ (_| |  __/ | | |/ . \\ \n |_|  \\_\\___|\\__, |\\___|_| |_/_/ \\_\\\n              __/ |                 \n             |___/                  \n"
-
+#define autodoc_logo "                _        _____   ____   _____ \n     /\\        | |      |  __ \\ / __ \\ / ____|\n    /  \\  _   _| |_ ___ | |  | | |  | | |     \n   / /\\ \\| | | | __/ _ \\| |  | | |  | | |     \n  / ____ \\ |_| | || (_) | |__| | |__| | |____ \n /_/    \\_\\__,_|\\__\\___/|_____/ \\____/ \\_____|\n"
 #define ENABLE_LOG
 #define DEFAULT_PORT 9700
