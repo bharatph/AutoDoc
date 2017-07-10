@@ -48,5 +48,15 @@ ADP maintains a session-id to identify a active session. This session-id is used
 |          . | .                 |
 |          . | .                 |
 +------------+-------------------+
+The session-id is expired after 12hrs
 
-The session-id is expired only after 12hrs which can be set by the session-expire-time.
+##Internal Working
+The following is algorithm is the usage of this protocol
+
+##C API
+int adp_init_connection(int sock, int type) -- initialize server and client
+int adp_send_binary(int sock, const char *binary) -- send file to server
+int adp_send_text(int sock, const char *text) -- send text to server
+int adp_start_diagnosis(int sock) -- starts the diagnosis process
+int adp_cancel_diagnosis(int sock) -- cancels diagnosis if running
+int adp_remove_session(int sock) -- deletes the client session
