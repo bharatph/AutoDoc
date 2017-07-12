@@ -54,7 +54,8 @@ The session-id is expired after 12hrs
 The following is algorithm is the usage of this protocol
 
 ##C API
-int adp_init_connection(int sock, int type) -- initialize server and client
+int adp_init_server(int sock) -- initialize server
+int adp_init_client(int sock) -- initialize connection to the server
 int adp_send_binary(int sock, const char *binary) -- send file to server
 int adp_send_text(int sock, const char *text) -- send text to server
 int adp_start_diagnosis(int sock) -- starts the diagnosis process

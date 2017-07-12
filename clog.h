@@ -1,7 +1,8 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef CLOG_H
+#define CLOG_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,68 +40,76 @@
 #define BUFFER_SIZE 256
 #endif
 
-int n = 2;
-int *writefd = &n; //for different socket support
 
-#ifdef __linux__ //TODO siblings
-pthread_mutex_t lock;
+#ifdef ENABLE_LOG
+
+int n = 2;
+static int *writefd = &n; //for different socket support
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__) //TODO siblings
+pthread_mutex_t _lock;
 pthread_mutex_t plock;
 #else
 //windows locks
 #endif
-
-void change_out_socket(int *sockfd) {
-	writefd = sockfd;
-}
-
-void init_log() {
-
-#ifdef __linux__
-	pthread_mutex_init(&lock, NULL);
+const int init_clog() {
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_init(&_lock, NULL);
 	pthread_mutex_init(&plock, NULL);
 #else
 	//windows mutex init
+#endif
+	return 0;
+}
+#endif
+
+/** Changes the default printing socket
+ * @param sockfd The socket descriptor to write to
+ */
+void change_out_socket(int *sockfd) {
+#ifdef ENABLE_LOG
+	writefd = sockfd;
 #endif
 }
 
 void log_inf(const char *tag, const char *msg, ...) {
 #ifdef ENABLE_LOG
-#ifdef __linux__
-	pthread_mutex_lock(&lock);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_lock(&_lock);
 #endif
 	char *str = (char *)malloc(BUFFER_SIZE);
 	va_list vl;
 	va_start(vl, msg);
 	vsprintf(str, msg, vl);
 	va_end(vl);
-	fprintf(stderr, "%s[!]%s %s: %s\n", COLOR_YELLOW, COLOR_RESET, tag, str);
-#ifdef __linux__
-	pthread_mutex_unlock(&lock);
+	printf("%s[!]%s %s: %s\n", COLOR_YELLOW, COLOR_RESET, tag, str);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_unlock(&_lock);
 #endif
 #endif
 }
 
 void log_err(const char *tag, const char *msg, ...) {
 #ifdef ENABLE_LOG
-#ifdef __linux__
-	pthread_mutex_lock(&lock);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_lock(&_lock);
 #endif
 	char *str = (char *)malloc(BUFFER_SIZE);
 	va_list vl;
 	va_start(vl, msg);
 	vsprintf(str, msg, vl);
 	va_end(vl);
-	fprintf(stderr, "[X] %s: %s\n", tag, str);
-#ifdef __linux__
-	pthread_mutex_unlock(&lock);
+	printf("[X] %s: %s\n", tag, str);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_unlock(&_lock);
 #endif
 #endif
 }
 
 void log_per(const char *tag, const char *msg, ...) {
 #ifdef ENABLE_LOG
-#ifdef __linux__
-	pthread_mutex_lock(&lock);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_lock(&_lock);
 #endif
 	char *str = (char *)malloc(BUFFER_SIZE);
 	va_list vl;
@@ -108,41 +117,26 @@ void log_per(const char *tag, const char *msg, ...) {
 	vsprintf(str, msg, vl);
 	va_end(vl);
 	perror(str);
-#ifdef __linux__
-	pthread_mutex_unlock(&lock);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_unlock(&_lock);
 #endif
 #endif
 }
 
 void log_fat(const char *tag, const char *msg, ...) {
 #ifdef ENABLE_LOG
-#ifdef __linux__
-	pthread_mutex_lock(&lock);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_lock(&_lock);
 #endif
 	char *str = (char *)malloc(BUFFER_SIZE);
 	va_list vl;
 	va_start(vl, msg);
 	vsprintf(str, msg, vl);
 	va_end(vl);
-	fprintf(stderr, "[FATAL] %s: %s\n", tag, str);
-#ifdef __linux__
-	pthread_mutex_unlock(&lock);
+	printf("[FATAL] %s: %s\n", tag, str);
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+	pthread_mutex_unlock(&_lock);
 #endif
-#endif
-}
-
-void println(char *msg, ...){
-#ifdef __linux__
-    pthread_mutex_lock(&lock);
-#endif
-    char *str = (char *)malloc(BUFFER_SIZE);
-    va_list vl;
-    va_start(vl, msg);
-    vsprintf(str, msg, vl);
-    va_end(vl);
-    fprintf(stderr, "%s\n", str);
-#ifdef __linux__
-    pthread_mutex_unlock(&lock);
 #endif
 }
 #endif

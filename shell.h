@@ -13,65 +13,59 @@
 #include <stdio.h>
 #endif
 #include <string.h>
-#include "logc.h"
+#include "clog.h"
 
 #define SH_BUFSIZE 1024 //shell read buffer size
 #define SH_TOK_BUFSIZE 64
-#define SH_TOK_DELIM " \t\r\n\a" //shell token delimeters
+#define SH_TOK_DELIM " \t\r\n\a" //shell token delimeter
 
-typedef int (*sh_func_ptr)(char**);
+typedef struct job job;
+typedef struct option option;
 
+struct option{
+    const char *word;
+    const char letter;
+    const char *description;
+};
 
+struct job{
+    const char *command;
+    const char *info;
+    int (*function)(int, char**);
+    int opt_length;
+    option *options;
+};
 
-/*
- * Return a vector by the using delimeters on the given string based on terminal/linux style args
- */
-char **
-shSplit(char * line) {
-	int bufsize = SH_TOK_BUFSIZE;
-	int position = 0;
-	char **tokens = (char **) malloc(bufsize * sizeof(char*));
-	char *token;
+int shell_socket = 2;
 
-    if (!tokens){
-		log_err(_SH_TAG, ": allocation error, not enough memory...closing");
-        return NULL;
-    }
-    
-#ifdef __GNUG__
-	token = strtok(line, SH_TOK_DELIM);
-#else
-	token = strtok(line, SH_TOK_DELIM);
-#endif
-	while (token != NULL) {
-		tokens[position] = token;
-		position++;
+int sh_process(job *jobs, int jlen, char *line){
+int count = 0;
+  ssize_t arg_buffsize = 64; //chage variably
+    char **args = (char **)calloc(arg_buffsize, SH_BUFSIZE);
 
-		if (position == bufsize) {
-			bufsize += SH_TOK_BUFSIZE;
-			tokens = (char **) realloc(tokens, bufsize * sizeof(char*));
-            if (!tokens){
-				log_fat(_SH_TAG, ": allocation error, not enough memory...closing");
-                return NULL;
-            }
+	 char *token = strtok(line, SH_TOK_DELIM);
+    while(token != NULL){
+
+		args[count++] = token;
+		if(count == arg_buffsize){
+			arg_buffsize += 64;//change variably
+			args = (char **)realloc(args, sizeof(char) * arg_buffsize);
 		}
-		#ifdef __GNUG__
 		token = strtok(NULL, SH_TOK_DELIM);
-		#else
-		token = strtok(NULL, SH_TOK_DELIM);
-		#endif
-
+    }
+	for (int i = 0; i < jlen; i++) {
+        	if (strcmp(*args, jobs[i].command) == 0) {
+            		return (jobs[i].function)(count, ++args);
+        	}
 	}
-	tokens[position] = NULL;
-	return tokens;
+	printf("you clearly need 'help'\n");
+    return -1;//FIXME add custom codes to identify returns and errors
 }
 
-/*
- * read input and return a char*
- */
-char *
-shRead() {
-	int bufsize = SH_BUFSIZE;
+int sh_next(job *jobs, int jlen, const char *_shell_name){
+    	int bufsize = SH_BUFSIZE;
+      printf("%s", _shell_name);
+
 	int position = 0;
 	char c;
 	char * buffer = (char *) malloc(sizeof(char) * bufsize);
@@ -82,11 +76,10 @@ shRead() {
 	while (1) {
 		//read a character
 		c = getchar();
-
 		//if we hit EOF or '\n' update it as null '\0' and return
-		if (c == EOF || c == '\n') {
+		if (c == EOF || c == '\n' || c == '\r') {
 			buffer[position] = '\0';
-			return buffer;
+			break;
 		} else {
 			buffer[position] = c;
 		}
@@ -95,30 +88,32 @@ shRead() {
 		//if we reached the buffer size, reallocate
 		if (position == bufsize) {
 			bufsize += SH_BUFSIZE;
-			buffer = (char *) realloc(buffer, sizeof(char) * bufsize);
+			buffer = (char *) realloc(buffer, sizeof(char) * bufsize);//TODO replace with calloc + realloc
 			if (!buffer)
-				log_fat(_SH_TAG, "allocation error, not enough memory...closingnn");
+				log_fat(_SH_TAG, "allocation error, not enough memory...closing");
 		}
-
 	}
-}
 
-int sh_next(sh_func_ptr *_sh_func, char **_commands, char **_info, int _cmd_len, const char *_shell_name){
-    char **args;
-    char *line;
-    printf("%s", _shell_name);
-    line = shRead();
-    args = shSplit(line);
-    if (*args == NULL) {
-        // An empty command was entered.
-        return 0;
+    if(*buffer == '\0'){
+	    //an empty command was entered
+	    return 0;
     }
-    for (int i = 0; i < _cmd_len; i++) {
-        if (strcmp(*args, _commands[i]) == 0) {
-            return (*(_sh_func)[i])(args);
+    return sh_process(jobs, jlen, buffer);
+   }
+
+/* job1
+ *  option 1 [-o]
+ *  ...
+ *  ...
+ */
+
+int sh_help(job *jbs, int jlen){
+    for(int i = 0; i < jlen; i++){
+        printf("%s\t - %s\n", jbs[i].command, jbs[i].info);
+        for(int j = 0; j < jbs[i].opt_length; j++){
+            printf("  |--%s[-%c] - %s\n", jbs[i].options[j].word, jbs[i].options[j].letter, jbs[i].options[j].description);
         }
     }
-    printf("you clearly need 'help'\n");
     return 0;
 }
 

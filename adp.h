@@ -47,7 +47,7 @@ Server replies with the following
 #include<sys/sendfile.h>
 #endif
 
-#include "logc.h"
+#include "clog.h"
 
 #define ADP_CON_REQ "CON_REQ"
 #define ADP_BIN_SEN "BIN_SEN"
@@ -77,17 +77,15 @@ Server replies with the following
 
 using namespace std;
 
-map<int, char *> session_ids;
+map<int, const char *> session_ids;
 
 void init_protocol(){
 	session_ids[0] = "__init__";
 }
 
-int adp_init_connection(int _sockfd, int _type){
-	switch(_type){
-	case ADP_SERVER:
-		char *_str = (char *)malloc(ADP_MSG_SIZE);
-		if(read(_sockfd, ADP_CON_REQ, ADP_MSG_SIZE) == 7){
+int adp_init_server(int _sockfd){
+	char *_str = (char *)malloc(ADP_MSG_SIZE);
+	if(read(_sockfd, _str, ADP_MSG_SIZE) == 7){
 			if(strncmp(_str, ADP_CON_REQ, ADP_MSG_SIZE) == 0){
 				log_inf(ADP_H, "Client found");
 				write(_sockfd, ADP_REQ_ACK, ADP_MSG_SIZE);
@@ -95,10 +93,11 @@ int adp_init_connection(int _sockfd, int _type){
 				return 0;
 			}
 			return -1;
-		}
-		break;
+	}
+	return -1;
+}
 
-	case ADP_CLIENT:
+int adp_init_client(int _sockfd){
 		if(write(_sockfd, ADP_CON_REQ, ADP_MSG_SIZE) == 7){
 				char *_str = (char *)malloc(ADP_MSG_SIZE);
 				read(_sockfd, _str, ADP_MSG_SIZE);
@@ -109,9 +108,7 @@ int adp_init_connection(int _sockfd, int _type){
 				log_inf(ADP_H, "Connection failed");
 				return -1;
 		}
-		break;
-	}
-	return -1;
+		return -1;
 }
 
 /*
@@ -122,9 +119,11 @@ int atomic_write(int _sockfd, const void *_msg, size_t _size){
 	static int _try;
 	if(_size == 0)return -1;//TEST _size <= 0 ?
 	int _bwritten = write(_sockfd, _msg, _size);
-
+	
+	if(_try++ > 6){
+		return -1;
+	}
 	atomic_write(_sockfd, _msg, _size - _bwritten); //deduct the written bytes from the actual size
-
 	if(_bwritten == 0){
 		return -1;
 	}else if(_bwritten < 1){

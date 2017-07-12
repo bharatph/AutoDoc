@@ -9,13 +9,16 @@
 #include "windows.h"
 #endif
 #include <sqlite3.h>
+#define ENABLE_LOG
+#define ENABLE_COLOR
 #include"config.h"
-#include"logc.h"
+#include"clog.h"
 #include "network_utils.h"
 #include "opencv_utils.h"
+#include"shell.h"
 #include "ui.h"
 
-
+int help(int, char **);
 int clifd = -1;
 
 
@@ -47,18 +50,18 @@ int check_server_and_connect(const char *server_addr){
         close(clifd);
         return 1;
     }
-    log_inf(AUTODOC, "Connection to REGENX Server established succesfully");
+    log_inf(AUTODOC, "Connection to AutoDoc Server established succesfully");
     return 0;
 }
 
-#define REGENX_SERVER_ADDR "localhost"
+#define AUTODOC_SERVER_ADDR "localhost"
 
 void *connect_to_server(void *l){
     int status = 0;
     bool approval = true; //set from [user interface] by making this globally accesible or making it static [or both]
     while(1){
         if(clifd < 0 && approval){ //TODO use fcntl methods to check for socket alive
-            status = check_server_and_connect(REGENX_SERVER_ADDR);
+            status = check_server_and_connect(AUTODOC_SERVER_ADDR);
             if(status == 1){
                 log_err(AUTODOC, "Protcol mismatch.. Either the Server [or Client] is outdated [or connection attempted on wrong server]");
                 /* TODO give guidelines to the user to do the following things,
@@ -66,7 +69,7 @@ void *connect_to_server(void *l){
                  * Check the client and server version and ask the user to update accordingly
                  */
             } else if(status == 2){
-                log_inf(AUTODOC, "Connection to the REGENX Server timed out");
+                log_inf(AUTODOC, "Connection to the AutoDoc Server timed out");
                 //TODO callback to [user interface] to try to reconnect [or use the setting automatic retry]
             }
         }
@@ -74,30 +77,7 @@ void *connect_to_server(void *l){
     }
     return NULL;
 }
-
-
-char *info[] = {
-    "dispaly this help message",
-    "send image to the server for processing"
-};
-
-char *commands[] = {
-    "help",
-    "send"
-};
-
-int len = sizeof(commands)/sizeof(char *);
-
-int help(char **args){
-    for(int i = 0; i < len; i++){
-        gprintln("%s\t- %s", commands[i], info[i]);
-    }
-    return 0;
-}
-
-
-
-int send_img(char **args){
+int send_data(int count, char **args){
     write(clifd, "send", BUFFER_SIZE); //TODO check the process thoroughly
     /*
     matwrite("tmp.raw", cv::Mat());
@@ -110,35 +90,59 @@ int send_img(char **args){
     return -1;
 }
 
-int (*builtin_funcs[])(char **) = {
-    &help,
-    &send_img
+int list(int count, char **args){
+	//print send buffer with info
+	return -1;
+}
+
+int remove(int count, char **args){
+	return -1;
+}
+
+job jobs[] = {
+	{"help","dispaly this help message", help},
+	{"ls", "lists the items in inventory with status", list},
+	{"rm", "removes an item from the inventory", remove},
+	{"send", "send image to the server for processing", send_data}
 };
 
+int jlen = sizeof(jobs)/sizeof(job);
 
+int help(int count, char **args){
+    return sh_help(jobs, jlen);
+}
 
 int load_db(){
     return -1;
 }
 
 void exit_handler(int sig){
-    log_inf(AUTODOC, "Closing down RegenX Client. Bye!");
+    log_inf(AUTODOC, "Closing down AutoDoc Client. Bye!");
     close(clifd); //Error checking on closing?
     exit(EXIT_SUCCESS);
 }
 
-
+#define EXIT_CODE 100
+int start_shell(const char *shell_name){
+	int status = 0;
+	while(status != EXIT_CODE){
+		status = sh_next(jobs, jlen, shell_name);
+	}
+	exit(EXIT_SUCCESS);
+}
 
 
 int main(int argc, char *argv[]){
     signal(SIGINT, exit_handler);
-	printf("%s", autodoc_logo);    if(load_db() < 0){
-		log_fat(AUTODOC, "Cannot load DB, terminating program");
-    }
+    init_clog();
+	printf("%s", autodoc_logo);
+	if(load_db() < 0){
+	}
     //start network thread
+    load_ui(jobs, jlen);
+    //start_shell("autodoc>");
     pthread_t net_thread;
     pthread_create(&net_thread, NULL, &connect_to_server, NULL);
-    load_ui(argc, argv, builtin_funcs, commands, info, len);
     pthread_join(net_thread, NULL);
     return 0;;
 }

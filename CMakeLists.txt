@@ -6,7 +6,7 @@ find_package(FLTK REQUIRED)
 find_package(Threads REQUIRED)
 include_directories (${OpenCV_INCLUDE_DIRS})
 
-set (CMAKE_CXX_FLAGS "-fPIC -Wall")
+set (CMAKE_CXX_FLAGS "-fPIC -Wall -std=c++11")
 
 ##version number
 set (autodoc_VERSION_MAJOR 0)
