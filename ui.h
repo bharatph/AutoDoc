@@ -36,15 +36,6 @@ void gprintln(char *msg, ...){
     }
 }
 
-int start_shell(job jbs[], int jlen){
-    int status = 0;
-    while(status != 100){
-        status = sh_next(jbs, jlen, "autodoc>");
-        log_inf(_UI_H, "The process returned the status %d", status);
-    }
-    return status;
-}
-
 void root_exit(Fl_Widget *obj, void *opt){
     root->hide();
     log_inf(_UI_H, "closing window");
@@ -88,7 +79,7 @@ int start_gui(job jbs[], int jlen){
     return Fl::run();
 }
 
-int load_ui(job jbs[], int jlen, bool _is_gui = 1){
+int load_ui(job jbs[], int jlen, bool _is_gui = false){
     //add checks for CLI or GUI from args
     	is_gui = _is_gui;
 	if(!_is_gui /*|| screen not found*/){
@@ -98,7 +89,7 @@ int load_ui(job jbs[], int jlen, bool _is_gui = 1){
             println("screen not found continuing with command line interface");
          }
          */
-		start_shell(jbs, jlen);
+		start_shell(jlen, jbs, "autodoc> ");
 	}
 	else start_gui(jbs, jlen);
 	return 0;

@@ -99,38 +99,34 @@ int remove(int count, char **args){
 	return -1;
 }
 
-job jobs[] = {
-	{"help","dispaly this help message", help},
-	{"ls", "lists the items in inventory with status", list},
-	{"rm", "removes an item from the inventory", remove},
-	{"send", "send image to the server for processing", send_data}
-};
-
-int jlen = sizeof(jobs)/sizeof(job);
-
-int help(int count, char **args){
-    return sh_help(jobs, jlen);
-}
-
-int load_db(){
-    return -1;
-}
-
 void exit_handler(int sig){
     log_inf(AUTODOC, "Closing down AutoDoc Client. Bye!");
     close(clifd); //Error checking on closing?
     exit(EXIT_SUCCESS);
 }
 
-#define EXIT_CODE 100
-int start_shell(const char *shell_name){
-	int status = 0;
-	while(status != EXIT_CODE){
-		status = sh_next(jobs, jlen, shell_name);
-	}
-	exit(EXIT_SUCCESS);
+int exit_self(int count, char **args){
+	exit_handler(SIGINT);
+	return 0;
 }
 
+job jobs[] = {
+	{"help","dispaly this help message", help},
+	{"ls", "lists the items in inventory with status", list},
+	{"rm", "removes an item from the inventory", remove},
+	{"send", "send image to the server for processing", send_data},
+	{"exit", "exits the client", exit_self}
+};
+
+int jlen = sizeof(jobs)/sizeof(job);
+
+int help(int count, char **args){
+    return sh_help(jlen, jobs);
+}
+
+int load_db(){
+    return -1;
+}
 
 int main(int argc, char *argv[]){
     signal(SIGINT, exit_handler);
@@ -139,8 +135,9 @@ int main(int argc, char *argv[]){
 	if(load_db() < 0){
 	}
     //start network thread
-    load_ui(jobs, jlen);
-    //start_shell("autodoc>");
+    if(argc < 2){
+    	load_ui(jobs, jlen, true);
+    }else load_ui(jobs, jlen);
     pthread_t net_thread;
     pthread_create(&net_thread, NULL, &connect_to_server, NULL);
     pthread_join(net_thread, NULL);

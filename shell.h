@@ -38,15 +38,15 @@ struct job{
 
 int shell_socket = 2;
 
-int sh_process(job *jobs, int jlen, char *line){
-int count = 0;
+int sh_process(int jlen, job *jobs, char *line){
+int count = -1;
   ssize_t arg_buffsize = 64; //chage variably
     char **args = (char **)calloc(arg_buffsize, SH_BUFSIZE);
 
 	 char *token = strtok(line, SH_TOK_DELIM);
     while(token != NULL){
 
-		args[count++] = token;
+		args[++count] = token;
 		if(count == arg_buffsize){
 			arg_buffsize += 64;//change variably
 			args = (char **)realloc(args, sizeof(char) * arg_buffsize);
@@ -62,7 +62,7 @@ int count = 0;
     return -1;//FIXME add custom codes to identify returns and errors
 }
 
-int sh_next(job *jobs, int jlen, const char *_shell_name){
+int sh_next(int jlen, job *jobs, const char *_shell_name){
     	int bufsize = SH_BUFSIZE;
       printf("%s", _shell_name);
 
@@ -98,8 +98,18 @@ int sh_next(job *jobs, int jlen, const char *_shell_name){
 	    //an empty command was entered
 	    return 0;
     }
-    return sh_process(jobs, jlen, buffer);
+    return sh_process(jlen, jobs, buffer);
    }
+
+
+int start_shell(int jlen, job jobs[], const char *_shell_name, int exit_code = 100){
+	int status = 0;
+	while(status != exit_code){
+		status = sh_next(jlen, jobs, _shell_name);
+		log_inf("SHELL", "Process exited with status %d", status);
+	}
+	return 0;
+}
 
 /* job1
  *  option 1 [-o]
@@ -107,7 +117,7 @@ int sh_next(job *jobs, int jlen, const char *_shell_name){
  *  ...
  */
 
-int sh_help(job *jbs, int jlen){
+int sh_help(int jlen, job *jbs, const char *opt = "\0"){
     for(int i = 0; i < jlen; i++){
         printf("%s\t - %s\n", jbs[i].command, jbs[i].info);
         for(int j = 0; j < jbs[i].opt_length; j++){

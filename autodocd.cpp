@@ -41,7 +41,7 @@ job jobs[] = {
 int jlen = sizeof(jobs)/sizeof(job);
 
 int help(int clifd, char **args){
-	return sh_help(jobs, jlen);
+	return sh_help(jlen, jobs);
 }
 
 void *handle_new_connection(void * sock_desc){
@@ -52,7 +52,7 @@ void *handle_new_connection(void * sock_desc){
     int status = 0;
     while(status == 0){
         read(clifd, buffer, BUFFER_SIZE);
-        status = sh_process(jobs, jlen, buffer);
+        status = sh_process(jlen, jobs, buffer);
     }
     return NULL;
 }

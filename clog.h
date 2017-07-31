@@ -48,14 +48,12 @@ static int *writefd = &n; //for different socket support
 
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__) //TODO siblings
 pthread_mutex_t _lock;
-pthread_mutex_t plock;
 #else
 //windows locks
 #endif
 const int init_clog() {
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
 	pthread_mutex_init(&_lock, NULL);
-	pthread_mutex_init(&plock, NULL);
 #else
 	//windows mutex init
 #endif
