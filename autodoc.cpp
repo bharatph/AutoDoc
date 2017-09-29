@@ -12,8 +12,8 @@
 #define ENABLE_LOG
 #define ENABLE_COLOR
 #include"config.h"
-#include"clog.h"
-#include "network_utils.h"
+#include"clog/clog.h"
+#include "Node/Node.h"
 #include "opencv_utils.h"
 #include"shell.h"
 #include "ui.h"
@@ -28,10 +28,11 @@ int clifd = -1;
  */
 #define MAX_RETRIES 256
 #define RETRY_TIME 2//in seconds
+node::Node serv;
 int check_server_and_connect(const char *server_addr){
     int i = 0;
     while(clifd < 0){
-        if((clifd = connect_server(server_addr, DEFAULT_PORT)) < 0){
+        if((clifd = serv.connect(server_addr, DEFAULT_PORT)) < 0){
             log_err(AUTODOC, "Cannot connect to server.. retrying");
             if(i++ == MAX_RETRIES){
                 return 2;
@@ -130,7 +131,6 @@ int load_db(){
 
 int main(int argc, char *argv[]){
     signal(SIGINT, exit_handler);
-    init_clog();
 	printf("%s", autodoc_logo);
 	if(load_db() < 0){
 	}

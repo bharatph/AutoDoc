@@ -24,6 +24,9 @@ configure_file (
 include_directories ("${PROJECT_SOURCE_DIR}")
 include_directories ("${PROJECT_BINARY_DIR}")
 
+add_subdirectory(clog ${CMAKE_CURRENT_SOURCE_DIR}/clog)
+add_subdirectory(Node ${CMAKE_CURRENT_SOURCE_DIR}/Node)
+
 add_executable (autodoc autodoc.cpp)
 add_executable (autodocd autodocd.cpp)
 
@@ -33,3 +36,5 @@ target_link_libraries(autodocd ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(autodoc ${FLTK_LIBRARIES})
 target_link_libraries(autodoc ${OpenCV_LIBS})
 target_link_libraries(autodoc ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(autodoc clog)
+target_link_libraries(autodoc Node)
