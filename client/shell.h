@@ -13,7 +13,7 @@
 #include <stdio.h>
 #endif
 #include <string.h>
-#include "clog.h"
+#include <clog/clog.h>
 
 #define SH_BUFSIZE 1024 //shell read buffer size
 #define SH_TOK_BUFSIZE 64

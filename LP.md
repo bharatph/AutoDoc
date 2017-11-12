@@ -1,11 +1,11 @@
-#Lazy Protocol (LP)
+# Lazy Protocol (LP)
 Lazy is a session-aware protocol for maintaining anonymous
 
-##Few characteristics of the Lazy Protocol
+## Few characteristics of the Lazy Protocol
 Non-Authenticative
 Connection is alive through sessions
 
-##Transport Format
+## Transport Format
 The following algorithm is used for sending and retreiving the information to and from the server
 
 
@@ -36,7 +36,7 @@ Server replies with the following
 | DIAG_ER | Diagnosis failed                           |
 +---------+--------------------------------------------+
 
-##Sessions
+## Sessions
 LP maintains a session-id to identify a active session. This session-id is used when the connection is interupted when a file is being uploaded to the server. This ensures that the uploaded files are not uploaded again when reconnecting.
 
 +------------+-------------------+
@@ -51,7 +51,7 @@ LP maintains a session-id to identify a active session. This session-id is used 
 +------------+-------------------+
 The session-id is expired after 12hrs
 
-##Internal Working
+## Internal Working
 The following is algorithm is the usage of this protocol
 
 ##C API
