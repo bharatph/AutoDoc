@@ -47,7 +47,11 @@ Server replies with the following
 #include<sys/sendfile.h>
 #endif
 
+<<<<<<< HEAD
 #include <clog/clog.h>
+=======
+#include "clog.h"
+>>>>>>> b6b441a863367900f343a8df28f5de0def3843b1
 #define LP_CON "CON"
 #define LP_ACK "ACK"
 #define LP_CMD "CMD"
