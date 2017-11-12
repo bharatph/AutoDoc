@@ -9,12 +9,13 @@
 #include "windows.h"
 #endif
 #include <sqlite3.h>
-#define ENABLE_LOG
 #define ENABLE_COLOR
 #include"config.h"
-#include"clog/clog.h"
-#include "Node/Node.h"
-#include "opencv_utils.h"
+extern "C" {
+#include <clog/clog.h>
+}
+#include <Node/Node.hpp>
+//#include "opencv_utils.h"
 #include"shell.h"
 #include "ui.h"
 

@@ -1,10 +1,7 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 project (AutoDoc)
 
-find_package(OpenCV REQUIRED)
-find_package(FLTK REQUIRED)
-find_package(Threads REQUIRED)
-include_directories (${OpenCV_INCLUDE_DIRS})
+option(ENABLE_LOG "Enables logging" OFF)
 
 set (CMAKE_CXX_FLAGS "-fPIC -Wall -std=c++11")
 
@@ -24,17 +21,15 @@ configure_file (
 include_directories ("${PROJECT_SOURCE_DIR}")
 include_directories ("${PROJECT_BINARY_DIR}")
 
-add_subdirectory(clog ${CMAKE_CURRENT_SOURCE_DIR}/clog)
-add_subdirectory(Node ${CMAKE_CURRENT_SOURCE_DIR}/Node)
+if(ENABLE_LOG)
+	add_definitions(-DENABLE_LOG)
+endif()
 
-add_executable (autodoc autodoc.cpp)
-add_executable (autodocd autodocd.cpp)
+add_subdirectory(${PROJECT_SOURCE_DIR}/clog ${PROJECT_SOURCE_DIR}/clog/build)
+add_subdirectory(${PROJECT_SOURCE_DIR}/Node ${PROJECT_SOURCE_DIR}/Node/build)
 
-target_link_libraries(autodocd ${OpenCV_LIBS})
-target_link_libraries(autodocd ${CMAKE_THREAD_LIBS_INIT})
+include_directories(${clog_SOURCE_DIR} ${Node_SOURCE_DIR})
 
-target_link_libraries(autodoc ${FLTK_LIBRARIES})
-target_link_libraries(autodoc ${OpenCV_LIBS})
-target_link_libraries(autodoc ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(autodoc clog)
-target_link_libraries(autodoc Node)
+add_subdirectory(${PROJECT_SOURCE_DIR}/daemon ${PROJECT_SOURCE_DIR}/daemon/build)
+add_subdirectory(${PROJECT_SOURCE_DIR}/client ${PROJECT_SOURCE_DIR}/client/build)
+
