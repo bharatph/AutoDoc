@@ -4,3 +4,6 @@
 [submodule "clog"]
 	path = clog
 	url = https://github.com/bharatph/clog
+[submodule "UniversalUI"]
+	path = UniversalUI
+	url = https://github.com/bharatph/UniversalUI

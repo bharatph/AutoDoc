@@ -20,6 +20,7 @@
 #include <FL/Fl_Multiline_Output.H>
 #include <FL/Fl_Menu_Bar.H>
 #include "shell.h"
+#include "layout.h"
 Fl_Double_Window *root;
 Fl_Multiline_Output *out_txt;
 
@@ -39,6 +40,10 @@ void gprintln(char *msg, ...){
     else {
         printf("%s", buffer);
     }
+}
+
+void send_medical_data(Fl_Button *btn, void *arg){
+	gprintln("Sent");
 }
 
 void root_exit(Fl_Widget *obj, void *opt){
@@ -132,10 +137,13 @@ Fl_Group *main_view(){
 
 #define LOG_TXT_SIZE 12
 int start_gui(job jbs[], int jlen){
+/*
     root = new Fl_Double_Window(0, 0, 256, 256, "AutoDoc");
     //TODO set max and min size for Fl_Window
     root->add(main_view());
     root->add(new Auto_Fl_Table(0, 256, 256, 256, "Queue"));
+*/
+    root = make_window();
     root->callback(root_exit);
     log_inf(_UI_H, "GUI Starting...");
     root->show();

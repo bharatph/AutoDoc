@@ -1,35 +1,25 @@
-cmake_minimum_required (VERSION 3.0)
-project (AutoDoc)
+cmake_minimum_required(VERSION 3.0)
+project(AutoDoc)
 
-option(ENABLE_LOG "Enables logging" OFF)
-
+set(CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_FLAGS "-fPIC -Wall -std=c++11")
 
-##version number
-set (autodoc_VERSION_MAJOR 0)
-set (autodoc_VERSION_MINOR 4)
-
-#miscellaneous
+option(ENABLE_CLOG "Enables logging" ON)
 set (BUFFER_SIZE 256)
 
-#configure file to add CMake settings to it
-configure_file (
-	"${PROJECT_SOURCE_DIR}/config.h.in"
-	"${PROJECT_BINARY_DIR}/config.h"
-	)
+add_subdirectory(clog ${CMAKE_SOURCE_DIR}/build/clog)
+add_subdirectory(Node ${CMAKE_SOURCE_DIR}/build/Node)
 
-include_directories ("${PROJECT_SOURCE_DIR}")
-include_directories ("${PROJECT_BINARY_DIR}")
+#daemon
+add_subdirectory(${PROJECT_SOURCE_DIR}/daemon ${CMAKE_SOURCE_DIR}/build/daemon)
 
-if(ENABLE_LOG)
-	add_definitions(-DENABLE_LOG)
-endif()
+#UniversalUI
+add_subdirectory(UniversalUI ${CMAKE_SOURCE_DIR}/build/UniversalUI)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/clog ${PROJECT_SOURCE_DIR}/clog/build)
-add_subdirectory(${PROJECT_SOURCE_DIR}/Node ${PROJECT_SOURCE_DIR}/Node/build)
+# modules to use
+add_subdirectory(UniversalUI/uui_modules/FLTKUI ${CMAKE_SOURCE_DIR}/build/FLTKUI)
+add_subdirectory(UniversalUI/uui_modules/CharacterUI ${CMAKE_SOURCE_DIR}/build/CharacterUI)
 
+#client application
 include_directories(${clog_SOURCE_DIR} ${Node_SOURCE_DIR})
-
-add_subdirectory(${PROJECT_SOURCE_DIR}/daemon ${PROJECT_SOURCE_DIR}/daemon/build)
-add_subdirectory(${PROJECT_SOURCE_DIR}/client ${PROJECT_SOURCE_DIR}/client/build)
-
+add_subdirectory(${PROJECT_SOURCE_DIR}/client ${CMAKE_SOURCE_DIR}/build/client)
