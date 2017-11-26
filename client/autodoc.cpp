@@ -30,7 +30,7 @@ using namespace node;
  */
 
 #define AUTODOC_SERVER_ADDR "localhost"
-#define MAX_RETRIES 20
+#define MAX_RETRIES 1
 #define RETRY_TIME 2 // in seconds
 int connect_to_server(UI *ui, void *obj) {
   Node *n = (Node *)obj;
@@ -80,21 +80,23 @@ int send_data(UI *ui, void *obj) {
   return -1;
 }
 
-int list(int count, char **args) {
+int list(UI *ui, void *obj) {
   // print send buffer with info
   return -1;
 }
 
-int remove(int count, char **args) { return -1; }
+int remove(UI *ui, void *obj) { return -1; }
 
-void exit_handler(int sig) {
+int exit_handler(UI *ui, void *args) {
   log_inf(AUTODOC, "Closing down AutoDoc Client. Bye!");
   // Error checking on closing?
-  exit(EXIT_SUCCESS);
-}
-
-int exit_self(int count, char **args) {
-  exit_handler(SIGINT);
+  switch (
+      ui->alert("Are you sure you want to exit", uui::PROMPT, "Yes", "No")) {
+  case 0:
+    ui->exit();
+  case 1:
+    return 0;
+  }
   return 0;
 }
 
@@ -110,30 +112,31 @@ int jlen = sizeof(jobs) / sizeof(job);
 int help(int count, char **args) { return sh_help(jlen, jobs); }
 */
 
-int load_db() { return -1; }
+int load_db(UI *ui, void *args) {
+  ui->error("Database not implemented");
+  return -1;
+}
 
 int main(int argc, char *argv[]) {
   //  signal(SIGINT, exit_handler);
   // printf("%s", autodoc_logo);
   UI *ui = new FLTKUI();
-  if (load_db() < 0) {
-  }
-  Node *n = new Node();
+  load_db(ui, nullptr);
   ui->set("connect", new std::vector<string>{"Connect to server"},
           connect_to_server);
   ui->set("send", new std::vector<string>{"Send data to server"}, send_data);
-  ui->run("connect", n);
-  ui->run("send", n);
-  /*
-  // start network thread
-  if (argc < 2) {
-    load_ui(jobs, jlen, true);
-  } else
-    load_ui(jobs, jlen);
-  pthread_t net_thread;
-  pthread_create(&net_thread, NULL, &connect_to_server, NULL);
-  pthread_join(net_thread, NULL);
-  */
+  ui->set("list", new std::vector<string>{"List the items in the inventory"},
+          list);
+  ui->set("remove",
+          new std::vector<string>{"Removes an item from the inventory"},
+          remove);
+  ui->set("exit", new std::vector<string>{"Exit from the client"},
+          exit_handler);
+  ui->run("exit", nullptr);
+  Node *n = new Node();
+  ui->run("connect", n, true);
+  // ui->run("send", n); //FIXME [PRIORITY: HIGH] Transport layer for Node
+  ui->wait_for("connect");
   return 0;
 }
 #endif

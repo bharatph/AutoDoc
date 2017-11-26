@@ -56,7 +56,7 @@ void handle_new_connection(node::Node *n) {
   // lp_init_server(clifd);//handle error
   int status = 0;
   while (status == 0) {
-    char *buffer = n->readln();
+    const char *buffer = n->readln();
     status = sh_process(jlen, jobs, n, buffer);
   };
 }
@@ -68,10 +68,10 @@ void exit_handler(int sig) {
 
 int main(int argc, char *argv[]) {
   // std::ios_base::sync_with_stdio(false);
+  log_inf(AUTODOC_D, "Starting AutoDoc server");
+  std::cout << "Starting AutoDoc server" << std::endl;
   signal(SIGPIPE, SIG_IGN);
   signal(SIGINT, exit_handler);
-  log_inf(AUTODOC_D, "Starting AutoDoc server");
-
   node::Node *n = new node::Node();
   std::thread *net_thread = nullptr;
   while (node::Node *cli = n->accept(DEFAULT_PORT)) {
