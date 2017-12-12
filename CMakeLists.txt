@@ -10,6 +10,8 @@ set (BUFFER_SIZE 256)
 add_subdirectory(clog ${CMAKE_SOURCE_DIR}/build/clog)
 add_subdirectory(Node ${CMAKE_SOURCE_DIR}/build/Node)
 
+add_subdirectory(LP ${CMAKE_SOURCE_DIR}/build/LP)
+
 #daemon
 add_subdirectory(${PROJECT_SOURCE_DIR}/daemon ${CMAKE_SOURCE_DIR}/build/daemon)
 

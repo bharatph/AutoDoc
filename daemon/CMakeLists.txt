@@ -12,6 +12,7 @@ add_executable (daemon autodocd.cpp)
 target_link_libraries(daemon ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(daemon clog)
 target_link_libraries(daemon Node)
+target_link_libraries(daemon lp)
 target_link_libraries(daemon ${OpenCV_LIBRARIES})
 
 

@@ -122,6 +122,7 @@ int main(int argc, char *argv[]) {
   ui->set("connect", new std::vector<string>{"Connect to server"},
           connect_to_server);
   ui->set("send", new std::vector<string>{"Send data to server"}, send_data);
+  Fl::run();
   ui->run("connect", n);
   ui->run("send", n);
   /*

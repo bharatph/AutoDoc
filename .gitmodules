@@ -7,3 +7,6 @@
 [submodule "UniversalUI"]
 	path = UniversalUI
 	url = https://github.com/bharatph/UniversalUI
+[submodule "LP"]
+	path = LP
+	url = https://github.com/bharatph/LP
